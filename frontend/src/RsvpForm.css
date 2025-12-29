@@ -1,0 +1,32 @@
+.rsvp-form {
+  margin-top: 20px;
+  width: 200px;
+}
+.rsvp-form button {
+  letter-spacing: 0.1em;
+}
+
+.form-field {
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.form-field label {
+  font-family: 'Cormorant Garamond', serif;
+  color: #ffffff;
+  display: block;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #ffffff;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
