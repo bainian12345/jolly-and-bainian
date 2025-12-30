@@ -12,7 +12,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# 3000 as we are keeping 3000 for website
-EXPOSE 3000
+# 80 as we are keeping 3000 for website
+EXPOSE 80
 
 CMD [ "npm", "run", "start" ]

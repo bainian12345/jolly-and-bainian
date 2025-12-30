@@ -44,7 +44,7 @@ export class Service extends Construct {
       logging: ecs.LogDrivers.awsLogs({ streamPrefix: 'free-tier' }),
     });
     container.addPortMappings({
-      containerPort: 3000, // your app port
+      containerPort: 80, // your app port
     });
     taskDefinition.defaultContainer = container;
     return taskDefinition;
@@ -85,7 +85,7 @@ export class Service extends Construct {
     });
 
     // Allow public HTTP traffic to container port
-    service.connections.allowFromAnyIpv4(ec2.Port.tcp(3000));
+    service.connections.allowFromAnyIpv4(ec2.Port.tcp(80));
     return service;
   }
 }
