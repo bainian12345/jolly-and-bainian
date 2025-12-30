@@ -1,0 +1,14 @@
+{
+  "availability-zones:account=332413160513:region=us-east-1": [
+    "us-east-1a",
+    "us-east-1b",
+    "us-east-1c",
+    "us-east-1d",
+    "us-east-1e",
+    "us-east-1f"
+  ],
+  "hosted-zone:account=332413160513:domainName=jolly-and-bainian.click:region=us-east-1": {
+    "Id": "/hostedzone/Z01332881T085K3MJ7KDU",
+    "Name": "jolly-and-bainian.click."
+  }
+}

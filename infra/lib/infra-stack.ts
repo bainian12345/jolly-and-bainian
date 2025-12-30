@@ -1,12 +1,14 @@
+import { Construct } from 'constructs';
+import { Service } from './service';
 import * as cdk from 'aws-cdk-lib/core';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as ecr from 'aws-cdk-lib/aws-ecr';
-import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import { Network } from './network';
 
 export class InfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+    const network = new Network(this, 'JollyAndBainianNetwork');
+    const service = new Service(this, 'JollyAndBainianService', network);
 
     const bucket = new s3.Bucket(this, 'JollyAndBainianBucket', {
       bucketName: 'jolly-and-bainian-bucket',
@@ -20,19 +22,6 @@ export class InfraStack extends cdk.Stack {
       }),
       publicReadAccess: true,
       versioned: false,
-    });
-
-    const repository = new ecr.Repository(this, 'JollyAndBainianECR', {
-      repositoryName: 'jolly-and-bainian-ecr',
-      imageScanOnPush: true,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      lifecycleRules: [
-        {
-          maxImageCount: 3,
-          rulePriority: 1,
-          description: "Keep only last 3 images for cost control",
-        },
-      ],
     });
   }
 }
