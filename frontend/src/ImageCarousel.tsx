@@ -29,6 +29,7 @@ export default function ImageCarousel({
           key={img}
           src={img}
           alt=""
+          loading="eager"
           className={`carousel-image ${
             index === currentIndex ? "active" : ""
           }`}
