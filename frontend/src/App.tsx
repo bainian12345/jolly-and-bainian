@@ -55,7 +55,7 @@ function App() {
             <p className="subtitle-text">April 19, 2026</p>
           </div>
           <div className="address-container">
-            <p className="subtitle-text address-text">Cambridge Butterfly Conservatory</p>
+            <p className="subtitle-text address-text">Cambridge Butterfly Conservatory🦋</p>
             <br />
             <p className="subtitle-text address-text">2500 Kossuth Rd</p>
             <p className="subtitle-text address-text">Cambridge, ON</p>
