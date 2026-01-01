@@ -18,8 +18,6 @@ import ImageCarousel from './ImageCarousel';
 const images = [image1, image2, image3, image4, image5, image6, image7, image8, image9, image10];
 
 function App() {
-  const [showForm, setShowForm] = useState(false);
-
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -53,20 +51,18 @@ function App() {
         <p className="subtitle-text save-the-date">Save The Date</p>
         <div className="subtitle-text-container">
           <div className="date-container">
-            <p className="subtitle-text">Sunday</p>
+            <p className="subtitle-text">Sunday 18:00</p>
             <p className="subtitle-text">April 19, 2026</p>
           </div>
           <div className="address-container">
+            <p className="subtitle-text address-text">Cambridge Butterfly Conservatory</p>
+            <br />
             <p className="subtitle-text address-text">2500 Kossuth Rd</p>
             <p className="subtitle-text address-text">Cambridge, ON</p>
           </div>
 
         </div>
-        <div>
-          <button className="rsvp-button" onClick={() => setShowForm(true)}>RSVP</button>
-        </div>
-
-        {showForm && <RSVPForm />}
+        <RSVPForm />
       </div>
     </main>
   );

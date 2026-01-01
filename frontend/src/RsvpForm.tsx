@@ -93,7 +93,7 @@ export default function RSVPForm() {
         )}
       </div>
 
-      <button type="submit">Submit</button>
+      <button type="submit">RSVP</button>
     </form>
   );
 }
