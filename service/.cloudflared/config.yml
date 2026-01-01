@@ -1,0 +1,21 @@
+tunnel: 5f569fab-a9b6-48bb-b274-86af927e56c7
+credentials-file: /Users/bainian.liu/.cloudflared/5f569fab-a9b6-48bb-b274-86af927e56c7.json
+
+# Order Matters
+ingress:
+  - hostname: jolly-and-bainian.click
+    path: /api/*
+    service: http://localhost:3000
+
+  - hostname: www.jolly-and-bainian.click
+    path: /api/*
+    service: http://localhost:3000
+
+  - hostname: jolly-and-bainian.click
+    service: http://localhost:5173
+
+  - hostname: www.jolly-and-bainian.click
+    service: http://localhost:5173
+
+  - service: http_status:404
+                                                                                                                                        
