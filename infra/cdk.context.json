@@ -10,5 +10,55 @@
   "hosted-zone:account=332413160513:domainName=jolly-and-bainian.click:region=us-east-1": {
     "Id": "/hostedzone/Z01332881T085K3MJ7KDU",
     "Name": "jolly-and-bainian.click."
+  },
+  "vpc-provider:account=332413160513:filter.isDefault=true:region=us-east-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-0b4a67ec9c20ad2d7",
+    "vpcCidrBlock": "172.31.0.0/16",
+    "ownerAccountId": "332413160513",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-00ec5e86aa8589636",
+            "cidr": "172.31.0.0/20",
+            "availabilityZone": "us-east-1a",
+            "routeTableId": "rtb-0f6acb643eb8ebb6c"
+          },
+          {
+            "subnetId": "subnet-00e048c9e0e590039",
+            "cidr": "172.31.80.0/20",
+            "availabilityZone": "us-east-1b",
+            "routeTableId": "rtb-0f6acb643eb8ebb6c"
+          },
+          {
+            "subnetId": "subnet-00e3bbe94cd1f79ac",
+            "cidr": "172.31.16.0/20",
+            "availabilityZone": "us-east-1c",
+            "routeTableId": "rtb-0f6acb643eb8ebb6c"
+          },
+          {
+            "subnetId": "subnet-0b3b2094c7619b41e",
+            "cidr": "172.31.32.0/20",
+            "availabilityZone": "us-east-1d",
+            "routeTableId": "rtb-0f6acb643eb8ebb6c"
+          },
+          {
+            "subnetId": "subnet-04acc011954b7335c",
+            "cidr": "172.31.48.0/20",
+            "availabilityZone": "us-east-1e",
+            "routeTableId": "rtb-0f6acb643eb8ebb6c"
+          },
+          {
+            "subnetId": "subnet-06f0f01b1e875bbb4",
+            "cidr": "172.31.64.0/20",
+            "availabilityZone": "us-east-1f",
+            "routeTableId": "rtb-0f6acb643eb8ebb6c"
+          }
+        ]
+      }
+    ]
   }
 }
