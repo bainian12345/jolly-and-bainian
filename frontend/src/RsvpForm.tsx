@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./RsvpForm.css";
 import addButton from "./assets/add-button.png";
 import minusButton from "./assets/minus-button.png";
@@ -16,6 +16,7 @@ export default function RSVPForm() {
   );
   const [plusOne, setPlusOne] = useState<Guest>({ firstName: "", lastName: "", email: "", meal: "" });
   const [hasPlusOne, setHasPlusOne] = useState<boolean>(false);
+  const plusOneRef = useRef<HTMLDivElement>(null);
 
   const mealOptions = ["Braised Beef Short Ribs", "Coal Roasted Salmon", "Red Thai Coconut Curry (Vegetarian)"];
 
@@ -39,7 +40,19 @@ export default function RSVPForm() {
   };
 
   const togglePlusOne = () => {
-    setHasPlusOne((prev) => !prev);
+    if (hasPlusOne) {
+      setHasPlusOne(false);
+    } else {
+      setHasPlusOne(true);
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          plusOneRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+      }, 200);
+    }
   };
 
   const getFormFields = (guest: Guest, onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void) => {
@@ -86,11 +99,9 @@ export default function RSVPForm() {
           {hasPlusOne ? "Remove Plus One" : "Add Plus One"}
         </div>
 
-        {hasPlusOne && (
-          <div className="form-fields">
-            {getFormFields(plusOne, (e) => handleChange(e, "plusOne"))}
-          </div>
-        )}
+        <div className={`form-fields plus-one-wrapper ${hasPlusOne ? "open" : ""}`} ref={plusOneRef}>
+          {getFormFields(plusOne, (e) => handleChange(e, "plusOne"))}
+        </div>
       </div>
 
       <button type="submit">RSVP</button>

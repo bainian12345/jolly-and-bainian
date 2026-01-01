@@ -27,6 +27,23 @@
   }
 }
 
+.plus-one-wrapper {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition:
+    max-height 400ms ease,
+    opacity 300ms ease,
+    transform 300ms ease;
+}
+
+.plus-one-wrapper.open {
+  max-height: 800px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .form-container {
   display: flex;
   flex-direction: column;
