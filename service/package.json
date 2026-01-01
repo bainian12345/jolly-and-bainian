@@ -4,7 +4,8 @@
   "main": "app.js",
   "scripts": {
     "build": "tsc",
-    "start": "npx ts-node app.ts"
+    "cloudflare": "cp -f ./.cloudflared/config.yml ~/.cloudflared/config.yml && cloudflared tunnel run",
+    "start": "npx ts-node app.ts & npm run cloudflare"
   },
   "keywords": [],
   "author": "",
