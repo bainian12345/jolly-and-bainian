@@ -21,7 +21,7 @@ export function setupApp() {
 }
 
 export function startServer(app: Express) {
-  const port = process.env.API_PORT || 80;
+  const port = process.env.API_PORT || 3000;
   const listener = app.listen(port, () => {
     logger.info(`Jolly and Bainian listening on port ${port}`);
   });
