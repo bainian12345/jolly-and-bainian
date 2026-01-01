@@ -1,9 +1,44 @@
 .rsvp-form {
+  width: 100%;
   margin-top: 20px;
-  width: 200px;
+  font-family: 'Cormorant Garamond', serif;
+  color: #ffffff;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
 }
 .rsvp-form button {
   letter-spacing: 0.1em;
+}
+
+.toggle-plus-one-button {
+  display: flex;
+  height: 1.3rem;
+  text-align: left;
+  vertical-align: middle;
+  margin: 1rem 0;
+  justify-content: flex-start;
+  width: 100%;
+  white-space: nowrap;
+  img {
+    width: auto;
+    height: 100%;
+    background-color: #000000;
+    margin-right: 8px;
+  }
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 220px;
+  margin: 0 auto;
+}
+
+.form-fields {
+  width: 100%;
 }
 
 .form-field {
@@ -12,11 +47,7 @@
 }
 
 .form-field label {
-  font-family: 'Cormorant Garamond', serif;
-  color: #ffffff;
   display: block;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
   text-align: left;
 }
 
