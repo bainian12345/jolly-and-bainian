@@ -6,13 +6,13 @@ export function setupApp() {
 
   app.use(express.json());
 
-  app.get("/", (_req: Request, res: Response) => {
+  app.get("/api", (_req: Request, res: Response) => {
     logger.info("Root route reached");
     res.status(200).send("Jolly and Bainian");
   });
 
   // Mount router with explicit prefix
-  app.get("/health", (_req: Request, res: Response) => {
+  app.get("/api/health", (_req: Request, res: Response) => {
     logger.info("Health route reached");
     res.status(200).send("Health OK");
   });
