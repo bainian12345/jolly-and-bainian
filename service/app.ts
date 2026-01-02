@@ -1,9 +1,18 @@
 import express, { Express, Request, Response } from 'express';
 import { logger } from './util/logger';
+import { PrismaClient } from './prisma/prisma-client';
+import { RsvpService } from './service/rsvp/service';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 export function setupApp() {
   const app: Express = express();
+  const prisma = new PrismaClient({
+    adapter: new PrismaPg({
+      connectionString: process.env.DATABASE_URL!
+    })
+  });
 
+  const rsvpService = new RsvpService(prisma);
   app.use(express.json());
 
   app.get("/api", (_req: Request, res: Response) => {
@@ -17,9 +26,10 @@ export function setupApp() {
     res.status(200).send("Health OK");
   });
 
-  app.post("/api/rsvp", (_req: Request, res: Response) => {
-    logger.info(`RSVP route reached: ${JSON.stringify(_req.body)}`);
-    res.status(200).json({ message: "RSVP received" });
+  app.post("/api/rsvp", async (_req: Request, res: Response) => {
+    logger.info(`Received RSVP request: ${JSON.stringify(_req.body)}`);
+    const rsvp = await rsvpService.rsvp(_req.body);
+    res.status(200).json({ id: rsvp.id });
   });
 
   return app;

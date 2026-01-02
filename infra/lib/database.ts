@@ -29,7 +29,6 @@ export class Database extends Construct {
 
   createDatabase(vpc: ec2.IVpc, securityGroup: ec2.SecurityGroup) {
     const dbPassword = ssm.StringParameter.fromSecureStringParameterAttributes(this, 'database_password', { parameterName: 'database_password' }).stringValue;
-    // const dbPassword = ssm.StringParameter.valueForStringParameter(this, 'database_password');
     return new rds.DatabaseInstance(this, 'JollyAndBainianDatabase', {
       engine: rds.DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_18 }),
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
@@ -37,7 +36,6 @@ export class Database extends Construct {
       vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
       securityGroups: [securityGroup],
       publiclyAccessible: true,
-      storageEncrypted: true,
       allocatedStorage: 20,
       maxAllocatedStorage: 20,
       databaseName: 'jollyandbainian',

@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Rsvp {
+  id              String   @id @default(uuid()) @db.Uuid
+  dateTimeCreated DateTime @default(now()) @db.Timestamp(6)
+  guests          Guest[]
+}
+
+model Guest {
+  id              String   @id @default(uuid()) @db.Uuid
+  firstName       String
+  lastName        String
+  email           String
+  mealOption      String
+  dateTimeCreated DateTime @default(now()) @db.Timestamp(6)
+  rsvpId          String   @db.Uuid
+  isPrimary       Boolean
+
+  rsvp Rsvp @relation(fields: [rsvpId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([firstName, lastName])
+  @@index(email)
+}

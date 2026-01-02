@@ -1,5 +1,5 @@
 {
-  "watch": ["*.ts"],
+  "watch": ["*.ts", "service/**/*.ts"],
   "ext": "ts",
-  "exec": "npx ts-node app.ts"
+  "exec": "npx ts-node --transpile-only app.ts"
 }
