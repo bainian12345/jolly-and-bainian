@@ -16,6 +16,7 @@ export default function RSVPForm() {
   );
   const [plusOne, setPlusOne] = useState<Guest>({ firstName: "", lastName: "", email: "", meal: "" });
   const [hasPlusOne, setHasPlusOne] = useState<boolean>(false);
+  const [rsvpSuccessful, setRsvpSuccessful] = useState<boolean>(false);
   const plusOneRef = useRef<HTMLDivElement>(null);
 
   const mealOptions = ["Braised Beef Short Ribs", "Coal Roasted Salmon", "Red Thai Coconut Curry (Vegetarian)"];
@@ -33,10 +34,31 @@ export default function RSVPForm() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(`Form submitted for ${guest.firstName} ${plusOne ? `and ${plusOne.firstName}` : ""}`);
-    alert(`Thank you, ${guest.firstName}!`);
+    const payload = {
+      guest: guest,
+      plusOne: hasPlusOne ? plusOne : null,
+    };
+
+    try {
+      const response = await fetch("https://jolly-and-bainian.click/api/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Response data:", data);
+      setRsvpSuccessful(true);
+    } catch (error) {
+      console.error("Error submitting RSVP:", error);
+      alert("Sorry there might be a bug 😅, please let Bainian know about it");
+    }
   };
 
   const togglePlusOne = () => {
@@ -55,17 +77,20 @@ export default function RSVPForm() {
     }
   };
 
-  const getFormFields = (guest: Guest, onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void) => {
+  const getFormFields = (guest: Guest,
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void,
+    type: "guest" | "plusOne" = "guest"
+  ) => {
     return (
       <>
       <div className="form-field">
         <label>First Name<span className="required">*</span></label>
-        <input name="firstName" value={guest.firstName} onChange={onChange} required />
+        <input name="firstName" value={guest.firstName} onChange={onChange} required={type === "guest"} />
       </div>
 
       <div className="form-field">
         <label>Last Name<span className="required">*</span></label>
-        <input name="lastName" value={guest.lastName} onChange={onChange} required />
+        <input name="lastName" value={guest.lastName} onChange={onChange} required={type === "guest"} />
       </div>
 
       <div className="form-field">
@@ -75,7 +100,7 @@ export default function RSVPForm() {
 
       <div className="form-field">
         <label>Meal Option<span className="required">*</span></label>
-        <select name="meal" value={guest.meal} onChange={onChange} required>
+        <select name="meal" value={guest.meal} onChange={onChange} required={type === "guest"}>
           <option value="">Select a meal</option>
           {mealOptions.map((meal) => (
             <option key={meal} value={meal}>{meal}</option>
@@ -100,11 +125,17 @@ export default function RSVPForm() {
         </div>
 
         <div className={`form-fields plus-one-wrapper ${hasPlusOne ? "open" : ""}`} ref={plusOneRef}>
-          {getFormFields(plusOne, (e) => handleChange(e, "plusOne"))}
+          {getFormFields(plusOne, (e) => handleChange(e, "plusOne"), "plusOne")}
         </div>
       </div>
 
       <button type="submit">RSVP</button>
+      {rsvpSuccessful &&
+        <div className="rsvp-success-message">
+          <p>Thank you for your RSVP! 🎉🎉🎉</p>
+          <p>Please check your email soon for a confirmation</p>
+        </div>
+      }
     </form>
   );
 }

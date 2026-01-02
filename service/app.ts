@@ -17,6 +17,11 @@ export function setupApp() {
     res.status(200).send("Health OK");
   });
 
+  app.post("/api/rsvp", (_req: Request, res: Response) => {
+    logger.info(`RSVP route reached: ${JSON.stringify(_req.body)}`);
+    res.status(200).json({ message: "RSVP received" });
+  });
+
   return app;
 }
 
