@@ -1,14 +1,29 @@
+import "dotenv/config";
 import { PrismaClient, Rsvp } from "../../prisma/prisma-client";
-import { PrismaClientKnownRequestError } from "../../prisma/prisma-client/runtime/client";
 import { logger } from "../../util/logger";
 import AlreadyExistError from "../errors/AlreadyExistError";
 import { RsvpRequest } from "./type";
+import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
+
+interface EmailMessage {
+  to: string;
+  guest: string;
+  plusOne?: string;
+}
 
 export class RsvpService {
   prisma: PrismaClient;
+  sqs: SQSClient;
 
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
+    this.sqs = new SQSClient({ 
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
+      },
+      region: "us-east-1" 
+    });
   }
 
   async rsvp(request: RsvpRequest): Promise<Rsvp> {
@@ -60,11 +75,25 @@ export class RsvpService {
       });
     }
 
-    const rsvp = await this.prisma.rsvp.create({
-      data: {
-        guests: { create: guestsData }
-      }
+    const emailMessage: EmailMessage = {
+      to: request.guest.email,
+      guest: request.guest.firstName,
+      plusOne: request.plusOne?.firstName
+    };
+    const rsvp = await this.prisma.$transaction(async (tx) => {
+      const rsvp = await tx.rsvp.create({
+        data: {
+          guests: { create: guestsData }
+        }
+      });
+
+      await this.sqs.send(new SendMessageCommand({
+        QueueUrl: process.env.EMAIL_SENDER_QUEUE_URL!,
+        MessageBody: JSON.stringify(emailMessage)
+      }));
+      return rsvp;
     });
+
     logger.info(`RSVP stored in database: ${rsvp.id}`);
     return rsvp;
   }

@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express, { Express, Request, Response } from 'express';
 import { logger } from './util/logger';
 import { PrismaClient } from './prisma/prisma-client';
@@ -8,7 +9,10 @@ export function setupApp() {
   const app: Express = express();
   const prisma = new PrismaClient({
     adapter: new PrismaPg({
-      connectionString: process.env.DATABASE_URL!
+      connectionString: process.env.DATABASE_URL!,
+      ssl: {
+        rejectUnauthorized: false
+      }
     })
   });
 

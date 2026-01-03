@@ -7,7 +7,6 @@ const ses = new AWS.SES({ region: 'us-east-1' });
 
 interface EmailMessage {
   to: string;
-  subject: string;
   guest: string;
   plusOne?: string;
 }
@@ -26,7 +25,7 @@ export const handler: SQSHandler = async (event) => {
           ToAddresses: [message.to],
         },
         Message: {
-          Subject: { Data: message.subject },
+          Subject: { Data: "Thanks for your RSVP to Jolly & Bainian's Wedding🦋" },
           Body: {
             Html: { Data: html },
           },
