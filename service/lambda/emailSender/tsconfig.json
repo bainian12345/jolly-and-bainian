@@ -15,7 +15,8 @@
   "include": [
     "./src/**/*.ts",
     "./test/**/*.ts",
-    "handler.ts"  
+    "handler.ts",
+    "*.html"
   ],
   "exclude": [
     "./node_modules",

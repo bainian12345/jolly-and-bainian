@@ -1,12 +1,15 @@
 import { SQSHandler } from 'aws-lambda';
 import AWS from 'aws-sdk';
+import fs from 'fs';
+import path from 'path';
 
 const ses = new AWS.SES({ region: 'us-east-1' });
 
 interface EmailMessage {
   to: string;
   subject: string;
-  htmlBody: string;
+  guest: string;
+  plusOne?: string;
 }
 
 export const handler: SQSHandler = async (event) => {
@@ -16,15 +19,16 @@ export const handler: SQSHandler = async (event) => {
     console.log(`Sending email to ${message.to}`);
 
     try {
+      const html = renderEmailTemplate(message.guest, message.plusOne);
       await ses.sendEmail({
-        Source: 'donot-reply@jolly-and-bainian.click',
+        Source: 'wedding-invite@jolly-and-bainian.click',
         Destination: {
           ToAddresses: [message.to],
         },
         Message: {
           Subject: { Data: message.subject },
           Body: {
-            Html: { Data: message.htmlBody },
+            Html: { Data: html },
           },
         },
       }).promise();
@@ -35,3 +39,16 @@ export const handler: SQSHandler = async (event) => {
     }
   }
 };
+
+function renderEmailTemplate(guest: string, plusOne?: string) {
+  let html = fs.readFileSync(path.join(__dirname, 'email.html'), 'utf8');
+
+  html = html.replace(/{{guest}}/g, guest);
+  if (plusOne) {
+    html = html.replace(/{{plusOne}}/g, ` and ${plusOne}`);
+  } else {
+    html = html.replace(/{{plusOne}}/g, '');
+  }
+
+  return html;
+}

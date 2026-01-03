@@ -6,7 +6,7 @@
   "scripts": {
     "check": "tsc --noEmit",
     "clean": "rm -rf ./dist node_modules",
-    "build": "rm -rf dist lambda.zip && tsc && cd dist && zip -r ../lambda.zip . && cd .. && zip -r lambda.zip node_modules",
+    "build": "rm -rf dist lambda.zip && tsc && cd dist && zip -r ../lambda.zip . && cd .. && zip -r lambda.zip *.html node_modules",
     "deploy": "aws s3 cp lambda.zip s3://jolly-and-bainian-bucket/lambdas/emailSender.zip && aws lambda update-function-code --function-name JollyAndBainianEmailSender --s3-bucket jolly-and-bainian-bucket --s3-key lambdas/emailSender.zip"
   },
   "keywords": [],
