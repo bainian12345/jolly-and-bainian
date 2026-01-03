@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "declaration": true,
+    "strict": true,
+    "incremental": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "composite": true,
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./test/**/*.ts",
+    "handler.ts"  
+  ],
+  "exclude": [
+    "./node_modules",
+    ]
+}
+  

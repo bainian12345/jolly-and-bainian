@@ -2,6 +2,7 @@ import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib/core';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Database } from './database';
+import { EmailSender } from './emailSender';
 
 export class InfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -20,5 +21,6 @@ export class InfraStack extends cdk.Stack {
       publicReadAccess: true,
       versioned: false,
     });
+    const emailSender = new EmailSender(this, 'JollyAndBainianEmailSender', bucket);
   }
 }

@@ -2,3 +2,6 @@
 
 node_modules
 */prisma/prisma-client/*
+**/dist/*
+**/node_modules/*
+**/lambda.zip
