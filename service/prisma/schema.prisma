@@ -9,19 +9,18 @@ datasource db {
 
 model Invitation {
   id               String    @id @default(uuid()) @db.Uuid
-  dateTimeAccepted DateTime? @default(now()) @db.Timestamp(6)
+  key              String?
+  dateTimeAccepted DateTime? @db.Timestamp(6)
   guests           Guest[]
 }
 
 model Guest {
-  id              String   @id @default(uuid()) @db.Uuid
-  key             String?
-  firstName       String
-  lastName        String
-  email           String?
-  mealOption      String
-  invitationId    String   @db.Uuid
-  isPrimary       Boolean  @default(true)
+  id           String  @id @default(uuid()) @db.Uuid
+  firstName    String
+  lastName     String
+  email        String?
+  mealOption   String
+  invitationId String  @db.Uuid
 
   invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 

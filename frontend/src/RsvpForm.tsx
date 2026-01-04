@@ -36,7 +36,9 @@ export default function RSVPForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const invitationId = getInvitationId();
     const payload = {
+      invitationId,
       guest: guest,
       plusOne: hasPlusOne ? plusOne : null,
     };
@@ -110,6 +112,11 @@ export default function RSVPForm() {
     </>
     );
   };
+
+  const getInvitationId = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("invitationId");
+  }
 
   return (
     <form onSubmit={handleSubmit} className="rsvp-form">

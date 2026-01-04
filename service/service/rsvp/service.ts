@@ -87,6 +87,9 @@ export class RsvpService {
     if (!invitation) {
       throw new NotFoundError(`Invitation not found. invitationId: ${request.invitationId}`);
     }
+    if (invitation.dateTimeAccepted) {
+      throw new AlreadyExistError(`Invitation already accepted. invitationId: ${request.invitationId}`);
+    }
 
     const existingGuest = await this.prisma.guest.findFirst({
       where: {
