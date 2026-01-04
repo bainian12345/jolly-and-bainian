@@ -1,9 +1,10 @@
 import "dotenv/config";
-import express, { Express, Request, Response } from 'express';
+import express, { Express, NextFunction, Request, Response } from 'express';
 import { logger } from './util/logger';
 import { PrismaClient } from './prisma/prisma-client';
 import { RsvpService } from './service/rsvp/service';
 import { PrismaPg } from '@prisma/adapter-pg';
+import HttpError from "./service/errors/HttpError";
 
 export function setupApp() {
   const app: Express = express();
@@ -36,6 +37,13 @@ export function setupApp() {
     res.status(200).json({ id: rsvp.id });
   });
 
+  app.use((err: Error, req: Request, res: Response, _) => {
+    if (err instanceof HttpError) {
+      res.status(err.statusCode).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
   return app;
 }
 

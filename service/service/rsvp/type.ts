@@ -1,4 +1,5 @@
 export interface RsvpRequest {
+  invitationId: string;
   guest: GuestInput;
   plusOne: GuestInput | null;
 }
