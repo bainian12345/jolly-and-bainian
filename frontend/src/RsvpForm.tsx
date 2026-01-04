@@ -92,7 +92,15 @@ export default function RSVPForm() {
       });
 
       if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
+        if (response.status === 400) {
+          alert("Seems like there might be some missing information in the form, please fill out all required fields and try again");
+        } else if (response.status === 404) {
+          alert("The invitation ID is missing or invalid, please use the link that you received with the proper ID in the url");
+        } else if (response.status === 409) {
+          alert("Seems like you have already RSVPed, if you need to change your RSVP, please contact Bainian");
+        } else {
+          throw new Error(`Server error: ${response.status}`);
+        }
       }
 
       const data = await response.json();
@@ -134,8 +142,8 @@ export default function RSVPForm() {
       </div>
 
       <div className="form-field">
-        <label>Email</label>
-        <input name="email" value={guests[index].email} onChange={onChange} />
+        <label>Email{index === 0 ? <span className="required">*</span> : ""}</label>
+        <input name="email" value={guests[index].email} onChange={onChange} required={index === 0} />
       </div>
 
       <div className="form-field">

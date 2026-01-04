@@ -44,6 +44,7 @@ export function setupApp() {
   });
 
   app.use((err: Error, req: Request, res: Response, _) => {
+    logger.error(`Error: ${err.message}, timestamp: ${new Date().toISOString()}`);
     if (err instanceof HttpError) {
       res.status(err.statusCode).json({ message: err.message });
     } else {

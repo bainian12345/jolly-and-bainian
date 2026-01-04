@@ -109,7 +109,7 @@ export class RsvpService {
 
   async validateRsvp(request: RsvpRequest): Promise<void> {
     if (!request.invitationId) {
-      throw new MissingParameterError("No invitation ID provided");
+      throw new NotFoundError("No invitation ID provided");
     }
     const invitation = await this.prisma.invitation.findUnique({
       where: { id: request.invitationId }
