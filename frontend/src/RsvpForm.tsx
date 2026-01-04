@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./RsvpForm.css";
 import addButton from "./assets/add-button.png";
 import minusButton from "./assets/minus-button.png";
@@ -10,37 +10,78 @@ interface Guest {
   meal: string;
 }
 
+interface Invitation {
+  id: string;
+  maxGuests: number;
+  dateTimeAccepted?: Date;
+  guests: Guest[];
+}
+
+function getInvitationId(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("invitationId");
+}
+
+async function getInvitation(invitationId: string): Promise<Invitation> {
+  const response = await fetch(`https://jolly-and-bainian.click/api/invitation/${invitationId}`);
+  const data = await response.json();
+  return data;
+}
+
 export default function RSVPForm() {
-  const [guest, setGuest] = useState<Guest>(
-    { firstName: "", lastName: "", email: "", meal: "" },
-  );
-  const [plusOne, setPlusOne] = useState<Guest>({ firstName: "", lastName: "", email: "", meal: "" });
-  const [hasPlusOne, setHasPlusOne] = useState<boolean>(false);
+  const invitationId = getInvitationId();
+  const [loading, setLoading] = useState(true);
+  const [guests, setGuests] = useState<Guest[]>([]);
+  const [hasGuests, setHasGuests] = useState<boolean[]>([]);
+  const [maxGuests, setMaxGuests] = useState(2);
   const [rsvpSuccessful, setRsvpSuccessful] = useState<boolean>(false);
   const plusOneRef = useRef<HTMLDivElement>(null);
 
   const mealOptions = ["Braised Beef Short Ribs", "Coal Roasted Salmon", "Red Thai Coconut Curry (Vegetarian)"];
 
+  useEffect(() => {
+    const loadInvitation = async () => {
+      if (!invitationId) {
+        initGuests(2);
+        return;
+      }
+
+      const invitation = await getInvitation(invitationId);
+      initGuests(invitation.maxGuests);
+    };
+
+    const initGuests = (count: number) => {
+      setMaxGuests(count);
+      setGuests(
+        Array.from({ length: count }, () => ({ firstName: "", lastName: "", email: "", meal: "" }))
+      );
+      setHasGuests(
+        Array.from({ length: count }, (_, i) => i === 0)
+      );
+      setLoading(false);
+    };
+
+    loadInvitation();
+  }, [invitationId]);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-    type: "guest" | "plusOne"
+    index: number
   ) => {
     const { name, value } = e.target;
     
-    if (type === "guest") {
-      setGuest((prev) => ({ ...prev, [name]: value }));
-    } else {
-      setPlusOne((prev) => prev && { ...prev, [name]: value });
-    }
+    setGuests(prev =>
+      prev.map((guest, i) =>
+        i === index ? { ...guest, [name]: value } : guest
+      )
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const invitationId = getInvitationId();
     const payload = {
       invitationId,
-      guest: guest,
-      plusOne: hasPlusOne ? plusOne : null,
+      guests: guests.filter((_, index) => hasGuests[index]),
     };
 
     try {
@@ -63,46 +104,43 @@ export default function RSVPForm() {
     }
   };
 
-  const togglePlusOne = () => {
-    if (hasPlusOne) {
-      setHasPlusOne(false);
-    } else {
-      setHasPlusOne(true);
-      setTimeout(() => {
-        requestAnimationFrame(() => {
-          plusOneRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        });
-      }, 200);
-    }
+  const toggleHasGuests = (index: number) => {
+    setHasGuests(prev =>
+      prev.map((v, i) => (i === index ? !v : v))
+    );
+
+    setTimeout(() => {
+      plusOneRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 200);
   };
 
-  const getFormFields = (guest: Guest,
+  const getFormFields = (
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void,
-    type: "guest" | "plusOne" = "guest"
+    index: number
   ) => {
     return (
       <>
       <div className="form-field">
         <label>First Name<span className="required">*</span></label>
-        <input name="firstName" value={guest.firstName} onChange={onChange} required={type === "guest"} />
+        <input name="firstName" value={guests[index].firstName} onChange={onChange} required={index === 0 || hasGuests[index]} />
       </div>
 
       <div className="form-field">
         <label>Last Name<span className="required">*</span></label>
-        <input name="lastName" value={guest.lastName} onChange={onChange} required={type === "guest"} />
+        <input name="lastName" value={guests[index].lastName} onChange={onChange} required={index === 0 || hasGuests[index]} />
       </div>
 
       <div className="form-field">
         <label>Email</label>
-        <input name="email" value={guest.email} onChange={onChange} />
+        <input name="email" value={guests[index].email} onChange={onChange} />
       </div>
 
       <div className="form-field">
         <label>Meal Option<span className="required">*</span></label>
-        <select name="meal" value={guest.meal} onChange={onChange} required={type === "guest"}>
+        <select name="meal" value={guests[index].meal} onChange={onChange} required={index === 0}>
           <option value="">Select a meal</option>
           {mealOptions.map((meal) => (
             <option key={meal} value={meal}>{meal}</option>
@@ -113,36 +151,40 @@ export default function RSVPForm() {
     );
   };
 
-  const getInvitationId = () => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("invitationId");
-  }
+  if (loading) return <div>Loading…</div>;
 
   return (
     <form onSubmit={handleSubmit} className="rsvp-form">
       <div className="form-container">
         <div className="form-fields">
-          {/* <div className="guest-header">Guest Details</div> */}
-          {getFormFields(guest, (e) => handleChange(e, "guest"))}
+          {getFormFields((e) => handleChange(e, 0), 0)}
         </div>
 
-        <div className="toggle-plus-one-button" onClick={() => togglePlusOne()}>
-          <img src={hasPlusOne ? minusButton : addButton} alt="Add a +1" />
-          {hasPlusOne ? "Remove Plus One" : "Add Plus One"}
-        </div>
+        {
+          Array.from({ length: maxGuests - 1 }, (_, index) => {
+            return (
+              <div key={index+1}>     
+                <div className="toggle-plus-one-button" onClick={() => toggleHasGuests(index+1)}>
+                  <img src={hasGuests[index+1] ? minusButton : addButton} alt="Toggle +1" />
+                  {hasGuests[index+1] ? "Remove Plus One" : "Add Plus One"}
+                </div>
 
-        <div className={`form-fields plus-one-wrapper ${hasPlusOne ? "open" : ""}`} ref={plusOneRef}>
-          {getFormFields(plusOne, (e) => handleChange(e, "plusOne"), "plusOne")}
-        </div>
+                <div className={`form-fields plus-one-wrapper ${hasGuests[index+1] ? "open" : ""}`} ref={plusOneRef}>
+                  {getFormFields((e) => handleChange(e, index+1), index+1)}
+                </div>
+              </div>
+            )
+          })
+        }
+
+        <button type="submit">RSVP</button>
+        {rsvpSuccessful &&
+          <div className="rsvp-success-message">
+            <p>Thank you for your RSVP! 🎉🎉🎉</p>
+            <p>Please check your email soon for a confirmation</p>
+          </div>
+        }
       </div>
-
-      <button type="submit">RSVP</button>
-      {rsvpSuccessful &&
-        <div className="rsvp-success-message">
-          <p>Thank you for your RSVP! 🎉🎉🎉</p>
-          <p>Please check your email soon for a confirmation</p>
-        </div>
-      }
     </form>
   );
 }

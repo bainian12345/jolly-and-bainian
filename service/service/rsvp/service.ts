@@ -84,6 +84,7 @@ export class RsvpService {
       });
 
       for (const emailMessage of emailMessages) {
+        logger.info(`Sending email to ${emailMessage.to} for guest ${emailMessage.guest}`);
         await this.sqs.send(new SendMessageCommand({
           QueueUrl: process.env.EMAIL_SENDER_QUEUE_URL!,
           MessageBody: JSON.stringify(emailMessage)

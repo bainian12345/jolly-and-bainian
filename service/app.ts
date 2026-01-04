@@ -32,13 +32,13 @@ export function setupApp() {
   });
 
   app.get("/api/invitation/:invitationId", async (req: Request, res: Response) => {
-    logger.info(`Received GET invitation request: ${req.params.invitationId}`);
+    logger.info(`Received GET invitation request: ${req.params.invitationId}. Timestamp: ${new Date().toISOString()}`);
     const invitation: Invitation = await rsvpService.getInvitation(req.params.invitationId);
     res.status(200).json(invitation);
   });
 
   app.post("/api/rsvp", async (_req: Request, res: Response) => {
-    logger.info(`Received RSVP request: ${JSON.stringify(_req.body)}`);
+    logger.info(`Received RSVP request: ${JSON.stringify(_req.body)}. Timestamp: ${new Date().toISOString()}`);
     const rsvp = await rsvpService.rsvp(_req.body);
     res.status(200).json({ id: rsvp.id });
   });
