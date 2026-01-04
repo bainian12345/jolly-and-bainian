@@ -4,7 +4,8 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon",
-    "cloudflare": "cp -f ./.cloudflared/config.yml ~/.cloudflared/config.yml && cloudflared tunnel run"
+    "cloudflare": "cp -f ./.cloudflared/config.yml ~/.cloudflared/config.yml && cloudflared tunnel run",
+    "invitations": "ts-node scripts/seedInvitations.ts"
   },
   "keywords": [],
   "author": "",
