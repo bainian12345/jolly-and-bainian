@@ -2,14 +2,14 @@ import "dotenv/config";
 import { PrismaClient, Invitation as PrismaInvitation, Guest as PrismaGuest } from "../../prisma/prisma-client";
 import { logger } from "../../util/logger";
 import AlreadyExistError from "../errors/AlreadyExistError";
-import { Guest, Invitation,RsvpRequest } from "./type";
+import { Invitation,RsvpRequest } from "./type";
 import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import NotFoundError from "../errors/NotFoundError";
 import MissingParameterError from "../errors/MissingParameterError";
 
 interface EmailMessage {
   to: string;
-  guest: string;
+  guests: string[];
 }
 
 export class RsvpService {
@@ -51,7 +51,7 @@ export class RsvpService {
     await this.validateRsvp(request);
 
     const guestsData = [];
-    const guestEmails = new Map<string, Guest>();
+    const guestEmails = new Set<string>();
     for (const guest of request.guests) {
       guestsData.push({
         firstName: guest.firstName,
@@ -60,15 +60,15 @@ export class RsvpService {
         mealOption: guest.meal,
       });
       if (guest.email) {
-        guestEmails.set(guest.email, guest);
+        guestEmails.add(guest.email);
       }
     }
 
     const emailMessages: EmailMessage[] = [];
     for (const guestEmail of guestEmails) {
       emailMessages.push({
-        to: guestEmail[0],
-        guest: guestEmail[1].firstName,
+        to: guestEmail,
+        guests: guestsData.map(guest => guest.firstName),
       });
     }
     const invitation: PrismaInvitation & { guests: PrismaGuest[] } = await this.prisma.$transaction(async (tx) => {
@@ -84,7 +84,7 @@ export class RsvpService {
       });
 
       for (const emailMessage of emailMessages) {
-        logger.info(`Sending email to ${emailMessage.to} for guest ${emailMessage.guest}`);
+        logger.info(`Sending email to ${emailMessage.to} for guest ${emailMessage.guests}`);
         await this.sqs.send(new SendMessageCommand({
           QueueUrl: process.env.EMAIL_SENDER_QUEUE_URL!,
           MessageBody: JSON.stringify(emailMessage)

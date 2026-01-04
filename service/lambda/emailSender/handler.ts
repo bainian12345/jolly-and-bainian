@@ -7,18 +7,17 @@ const ses = new AWS.SES({ region: 'us-east-1' });
 
 interface EmailMessage {
   to: string;
-  guest: string;
-  plusOne?: string;
+  guests: string[];
 }
 
 export const handler: SQSHandler = async (event) => {
   for (const record of event.Records) {
     console.log(`Processing record ${record.body}`);
     const message: EmailMessage = JSON.parse(record.body);
-    console.log(`Sending email to ${message.to}`);
+    console.log(`Sending email to ${message.to} for guests ${JSON.stringify(message.guests)}`);
 
     try {
-      const html = renderEmailTemplate(message.guest, message.plusOne);
+      const html = renderEmailTemplate(message.guests);
       await ses.sendEmail({
         Source: 'wedding-invite@jolly-and-bainian.click',
         Destination: {
@@ -39,15 +38,21 @@ export const handler: SQSHandler = async (event) => {
   }
 };
 
-function renderEmailTemplate(guest: string, plusOne?: string) {
+function renderEmailTemplate(guests: string[]) {
   let html = fs.readFileSync(path.join(__dirname, 'email.html'), 'utf8');
+  let guestList = "";
+  for (let i = 0; i < guests.length; i++) {
+    if (i === guests.length - 1 && i > 0) {
+      guestList += ` and ${guests[i]}`;
+    } else {
+      guestList += `${guests[i]}`;
+    }
 
-  html = html.replace(/{{guest}}/g, guest);
-  if (plusOne) {
-    html = html.replace(/{{plusOne}}/g, ` and ${plusOne}`);
-  } else {
-    html = html.replace(/{{plusOne}}/g, '');
+    if (i < guests.length - 2) {
+      guestList += ", ";
+    }
   }
 
+  html = html.replace(/{{guests}}/g, guestList);
   return html;
 }
