@@ -1,10 +1,11 @@
 import "dotenv/config";
-import express, { Express, NextFunction, Request, Response } from 'express';
+import express, { Express, Request, Response } from 'express';
 import { logger } from './util/logger';
 import { PrismaClient } from './prisma/prisma-client';
 import { RsvpService } from './service/rsvp/service';
 import { PrismaPg } from '@prisma/adapter-pg';
 import HttpError from "./service/errors/HttpError";
+import { Invitation } from "./service/rsvp/type";
 
 export function setupApp() {
   const app: Express = express();
@@ -25,10 +26,15 @@ export function setupApp() {
     res.status(200).send("Jolly and Bainian");
   });
 
-  // Mount router with explicit prefix
   app.get("/api/health", (_req: Request, res: Response) => {
     logger.info("Health route reached");
     res.status(200).send("Health OK");
+  });
+
+  app.get("/api/invitation/:invitationId", async (req: Request, res: Response) => {
+    logger.info(`Received GET invitation request: ${req.params.invitationId}`);
+    const invitation: Invitation = await rsvpService.getInvitation(req.params.invitationId);
+    res.status(200).json(invitation);
   });
 
   app.post("/api/rsvp", async (_req: Request, res: Response) => {

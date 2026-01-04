@@ -1,8 +1,8 @@
 import "dotenv/config";
-import { PrismaClient, Invitation } from "../../prisma/prisma-client";
+import { PrismaClient, Invitation as PrismaInvitation, Guest as PrismaGuest } from "../../prisma/prisma-client";
 import { logger } from "../../util/logger";
 import AlreadyExistError from "../errors/AlreadyExistError";
-import { RsvpRequest } from "./type";
+import { Guest, Invitation,RsvpRequest } from "./type";
 import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import NotFoundError from "../errors/NotFoundError";
 import MissingParameterError from "../errors/MissingParameterError";
@@ -10,7 +10,6 @@ import MissingParameterError from "../errors/MissingParameterError";
 interface EmailMessage {
   to: string;
   guest: string;
-  plusOne?: string;
 }
 
 export class RsvpService {
@@ -28,34 +27,51 @@ export class RsvpService {
     });
   }
 
+  async getInvitation(invitationId: string): Promise<Invitation> {
+    const invitation: PrismaInvitation & { guests: PrismaGuest[] } = await this.prisma.invitation.findUnique({
+      include: { guests: true },
+      where: { id: invitationId }
+    });
+    if (!invitation) {
+      throw new NotFoundError(`Invitation not found. invitationId: ${invitationId}`);
+    }
+    return {
+      id: invitation.id,
+      maxGuests: invitation.maxGuests,
+      guests: invitation.guests.map(guest => ({
+        firstName: guest.firstName,
+        lastName: guest.lastName,
+        email: guest.email,
+        meal: guest.mealOption,
+      })),
+    };
+  }
+
   async rsvp(request: RsvpRequest): Promise<Invitation> {
     await this.validateRsvp(request);
 
-    const guestsData = [
-      {
-        firstName: request.guest.firstName,
-        lastName: request.guest.lastName,
-        email: request.guest.email,
-        mealOption: request.guest.meal,
-        isPrimary: true
-      }
-    ];
-    if (request.plusOne) {
+    const guestsData = [];
+    const guestEmails = new Map<string, Guest>();
+    for (const guest of request.guests) {
       guestsData.push({
-        firstName: request.plusOne.firstName,
-        lastName: request.plusOne.lastName,
-        email: request.plusOne.email,
-        mealOption: request.plusOne.meal,
-        isPrimary: false
+        firstName: guest.firstName,
+        lastName: guest.lastName,
+        email: guest.email,
+        mealOption: guest.meal,
       });
+      if (guest.email) {
+        guestEmails.set(guest.email, guest);
+      }
     }
 
-    const emailMessage: EmailMessage = {
-      to: request.guest.email,
-      guest: request.guest.firstName,
-      plusOne: request.plusOne?.firstName
-    };
-    const invitation = await this.prisma.$transaction(async (tx) => {
+    const emailMessages: EmailMessage[] = [];
+    for (const guestEmail of guestEmails) {
+      emailMessages.push({
+        to: guestEmail[0],
+        guest: guestEmail[1].firstName,
+      });
+    }
+    const invitation: PrismaInvitation & { guests: PrismaGuest[] } = await this.prisma.$transaction(async (tx) => {
       const invitation = await tx.invitation.update({
         data: {
           guests: { 
@@ -63,18 +79,31 @@ export class RsvpService {
           },
           dateTimeAccepted: new Date(),
         },
+        include: { guests: true },
         where: { id: request.invitationId }
       });
 
-      await this.sqs.send(new SendMessageCommand({
-        QueueUrl: process.env.EMAIL_SENDER_QUEUE_URL!,
-        MessageBody: JSON.stringify(emailMessage)
-      }));
+      for (const emailMessage of emailMessages) {
+        await this.sqs.send(new SendMessageCommand({
+          QueueUrl: process.env.EMAIL_SENDER_QUEUE_URL!,
+          MessageBody: JSON.stringify(emailMessage)
+        }));
+      }
       return invitation;
     });
 
     logger.info(`RSVP stored in database: ${invitation.id}`);
-    return invitation;
+    return {
+      id: invitation.id,
+      maxGuests: invitation.maxGuests,
+      dateTimeAccepted: invitation.dateTimeAccepted,
+      guests: invitation.guests.map(guest => ({
+        firstName: guest.firstName,
+        lastName: guest.lastName,
+        email: guest.email,
+        meal: guest.mealOption,
+      })),
+    }
   }
 
   async validateRsvp(request: RsvpRequest): Promise<void> {
@@ -89,35 +118,6 @@ export class RsvpService {
     }
     if (invitation.dateTimeAccepted) {
       throw new AlreadyExistError(`Invitation already accepted. invitationId: ${request.invitationId}`);
-    }
-
-    const existingGuest = await this.prisma.guest.findFirst({
-      where: {
-        OR: [
-          { 
-            AND: [
-              { firstName: request.guest.firstName },
-              { lastName: request.guest.lastName }
-            ]
-          },
-          { email: request.guest.email },
-        ],
-      },
-    });
-    if (existingGuest) {
-      throw new AlreadyExistError(`Guest already exists. first name: ${request.guest?.firstName}, lastName: ${request.guest?.lastName} email: ${request.guest?.email}`);
-    }
-
-    if (request.plusOne) {
-      const existingPlusOne = await this.prisma.guest.findFirst({
-        where: {
-          firstName: request.plusOne?.firstName,
-          lastName: request.plusOne?.lastName
-        }
-      });
-      if (existingPlusOne) {
-        throw new AlreadyExistError(`Plus one already exists. first name: ${request.plusOne?.firstName}, lastName: ${request.plusOne?.lastName} email: ${request.plusOne?.email}`);
-      }
     }
   }
 }

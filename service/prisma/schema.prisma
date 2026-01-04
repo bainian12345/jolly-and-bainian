@@ -10,6 +10,7 @@ datasource db {
 model Invitation {
   id               String    @id @default(uuid()) @db.Uuid
   key              String?
+  maxGuests        Int       @default(2)
   dateTimeAccepted DateTime? @db.Timestamp(6)
   guests           Guest[]
 }
