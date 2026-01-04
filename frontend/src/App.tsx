@@ -1,21 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import Divider from "./Divider";
 import './App.css'
 import RSVPForm from './RsvpForm';
 
-import image1 from './assets/image1.JPG';
-import image2 from './assets/image2.JPG';
-import image3 from './assets/image3.JPG';
-import image4 from './assets/image4.JPG';
-import image5 from './assets/image5.JPG';
-import image6 from './assets/image6.JPG';
-import image7 from './assets/image7.JPG';
-import image8 from './assets/image8.JPG';
-import image9 from './assets/image9.JPG';
-import image10 from './assets/image10.JPG';
 import ImageCarousel from './ImageCarousel';
 
-const images = [image1, image2, image3, image4, image5, image6, image7, image8, image9, image10];
+const images = [
+  'https://jolly-and-bainian-bucket.s3.us-east-1.amazonaws.com/images/image1.JPG',
+  'https://jolly-and-bainian-bucket.s3.us-east-1.amazonaws.com/images/image2.JPG',
+  'https://jolly-and-bainian-bucket.s3.us-east-1.amazonaws.com/images/image3.JPG',
+  'https://jolly-and-bainian-bucket.s3.us-east-1.amazonaws.com/images/image4.JPG',
+  'https://jolly-and-bainian-bucket.s3.us-east-1.amazonaws.com/images/image5.JPG',
+  'https://jolly-and-bainian-bucket.s3.us-east-1.amazonaws.com/images/image6.JPG',
+  'https://jolly-and-bainian-bucket.s3.us-east-1.amazonaws.com/images/image7.JPG',
+  'https://jolly-and-bainian-bucket.s3.us-east-1.amazonaws.com/images/image8.JPG',
+  'https://jolly-and-bainian-bucket.s3.us-east-1.amazonaws.com/images/image9.JPG',
+  'https://jolly-and-bainian-bucket.s3.us-east-1.amazonaws.com/images/image10.JPG',
+];
 
 function App() {
   useEffect(() => {
