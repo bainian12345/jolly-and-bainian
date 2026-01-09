@@ -13,12 +13,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1693.0"
+    "aws-sdk": "^2.1693.0",
+    "nodemailer": "^7.0.12"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.159",
     "@types/express": "^5.0.6",
     "@types/node": "^24.10.1",
+    "@types/nodemailer": "^7.0.4",
     "dotenv": "^17.2.3",
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",

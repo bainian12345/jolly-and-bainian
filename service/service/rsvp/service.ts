@@ -5,7 +5,6 @@ import AlreadyExistError from "../errors/AlreadyExistError";
 import { Invitation,RsvpRequest } from "./type";
 import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import NotFoundError from "../errors/NotFoundError";
-import MissingParameterError from "../errors/MissingParameterError";
 
 interface EmailMessage {
   to: string;
@@ -84,7 +83,6 @@ export class RsvpService {
       });
 
       for (const emailMessage of emailMessages) {
-        logger.info(`Sending email to ${emailMessage.to} for guest ${emailMessage.guests}`);
         await this.sqs.send(new SendMessageCommand({
           QueueUrl: process.env.EMAIL_SENDER_QUEUE_URL!,
           MessageBody: JSON.stringify(emailMessage)

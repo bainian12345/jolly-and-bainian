@@ -5,6 +5,7 @@ import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Stack } from 'aws-cdk-lib';
 
 export class EmailSender extends Construct {
@@ -41,6 +42,7 @@ export class EmailSender extends Construct {
   }
 
   createLambdaFunction(intakeQueue: sqs.Queue, bucket: s3.Bucket) {
+    // Need to manually create the Parameter Store entries for email_address and email_password in AWS Console.
     const emailLambda = new lambda.Function(this, 'EmailLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler.handler',
@@ -53,8 +55,10 @@ export class EmailSender extends Construct {
     intakeQueue.grantConsumeMessages(emailLambda);
     emailLambda.addToRolePolicy(
       new iam.PolicyStatement({
-        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
-        resources: ['*'],
+        actions: ['ssm:GetParameter', 'ssm:GetParameters'],
+        resources: [
+          'arn:aws:ssm:us-east-1:332413160513:parameter/*',
+        ],
       })
     );
 

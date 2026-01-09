@@ -1,7 +1,9 @@
 import { SQSHandler } from 'aws-lambda';
 import AWS from 'aws-sdk';
+import SSM from 'aws-sdk/clients/ssm';
 import fs from 'fs';
 import path from 'path';
+import nodemailer from "nodemailer";
 
 const ses = new AWS.SES({ region: 'us-east-1' });
 
@@ -11,6 +13,19 @@ interface EmailMessage {
 }
 
 export const handler: SQSHandler = async (event) => {
+  const ssm = new SSM();
+  const emailAddress = (await ssm.getParameter({ Name: 'email_address' }).promise()).Parameter?.Value;
+  const emailPassword = (await ssm.getParameter({ Name: 'email_password' }).promise()).Parameter?.Value;
+
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    auth: {
+      user: emailAddress,
+      pass: emailPassword,
+    },
+  });
+
   for (const record of event.Records) {
     console.log(`Processing record ${record.body}`);
     const message: EmailMessage = JSON.parse(record.body);
@@ -18,19 +33,12 @@ export const handler: SQSHandler = async (event) => {
 
     try {
       const html = renderEmailTemplate(message.guests);
-      await ses.sendEmail({
-        Source: 'wedding-invite@jolly-and-bainian.click',
-        Destination: {
-          ToAddresses: [message.to],
-        },
-        Message: {
-          Subject: { Data: "Thanks for your RSVP to Jolly & Bainian's Wedding🦋" },
-          Body: {
-            Html: { Data: html },
-          },
-        },
-      }).promise();
-
+      await transporter.sendMail({
+        from: `"Jolly & Bainian" <wedding-invites@jolly-and-bainian.click>`,
+        to: message.to,
+        subject: "Thanks for your RSVP to Jolly & Bainian's Wedding🦋",
+        html,
+      });
       console.log(`Email sent to ${message.to}`);
     } catch (err) {
       console.error('Error sending email', err);

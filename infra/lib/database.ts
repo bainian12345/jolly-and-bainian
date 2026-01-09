@@ -28,6 +28,7 @@ export class Database extends Construct {
   }
 
   createDatabase(vpc: ec2.IVpc, securityGroup: ec2.SecurityGroup) {
+    // Need to manually create the Parameter Store entries for database_password in AWS Console.
     const dbPassword = ssm.StringParameter.fromSecureStringParameterAttributes(this, 'database_password', { parameterName: 'database_password' }).stringValue;
     return new rds.DatabaseInstance(this, 'JollyAndBainianDatabase', {
       engine: rds.DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_18 }),
