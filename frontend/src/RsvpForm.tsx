@@ -105,6 +105,7 @@ export default function RSVPForm() {
 
       const data = await response.json();
       console.log("Response data:", data);
+      alert("Thank you for your RSVP 🎉🎉🎉 Please check your inbox (most likely in your spam folder) soon for a confirmation email");
       setRsvpSuccessful(true);
     } catch (error) {
       console.error("Error submitting RSVP:", error);
